@@ -19,7 +19,6 @@ public class FileSystem {
     /*
     * Takes a path string and a content string
     * Writes content to the path
-    * If err, then return null
     */
     public void writeSync(String path, String content) throws IOException {
         File file = new File(path);

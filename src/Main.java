@@ -6,8 +6,10 @@ import javafx.stage.Stage;
 import java.io.File;
 import org.omg.CORBA.SystemException;
 import netscape.javascript.JSObject;
+
 import FileSystem.FileSystem;
 import BrowserWindow.BrowserWindow;
+import Util.*;
 
 public class Main extends Application {
 
@@ -17,10 +19,14 @@ public class Main extends Application {
     Stage main;
     FileSystem fs;
     BrowserWindow window;
+    static String view;
+    Scene scene;
+    WebView webView;
+    Console console;
 
     public static void main(String[] args) { launch(args); }
 
-    @Override public void start(Stage stage) {
+    @Override public void start(Stage stage) {        
         os = System.getProperty("os.name");
 
         userRoot = System.getProperty("user.home");
@@ -32,24 +38,28 @@ public class Main extends Application {
         }
         createDirectory(appData); // Ensure that we have the Pheonix data path by creating one if it does not exist
 
-        WebView webView = new WebView();
+        webView = new WebView();
         WebEngine webEngine = webView.getEngine();
 
         webView.getEngine().load(
-          Main.class.getResource("/index.html").toExternalForm()            
+          Main.class.getResource("./index.html").toExternalForm()            
         );
 
-        stage.setScene(new Scene(webView));
+        scene = new Scene(webView);
+
+        stage.setScene(scene);
         stage.setMaximized(true);
         stage.show();
 
         fs = new FileSystem(appData, userRoot);
-        window = new BrowserWindow();
+        window = new BrowserWindow(stage, webView);
+        console = new Console();
 
         JSObject window = (JSObject) webEngine.executeScript("window");
         window.setMember("fs", fs);
         window.setMember("app", new AppMain());
         window.setMember("BrowserWindow", window);
+        window.setMember("console", console);
 
         main = stage;
     }
@@ -69,9 +79,7 @@ public class Main extends Application {
 
     public class AppMain {
 
-        public void print(String content) {
-            System.out.println(content);
-        }
+
 
     }
 
